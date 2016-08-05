@@ -114,7 +114,7 @@
     
     label.textAlignment = NSTextAlignmentCenter;
     label.adjustsFontSizeToFitWidth = YES;
-    [label setText:@"00:00"];
+    [label setText:@"0:00"];
     [self addSubview:label];
     
     [label setTranslatesAutoresizingMaskIntoConstraints:NO];
