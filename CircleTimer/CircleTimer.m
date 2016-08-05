@@ -15,7 +15,7 @@
 #define ICOLOR [UIColor colorWithRed:0.85 green:0.87 blue:0.9 alpha:1]
 #define PCOLOR [UIColor colorWithRed:0.91 green:0.4 blue:0.51 alpha:1]
 
-#define FONT UIFontAvenirNextBold(14)
+#define FONT UIFontOpenSansBold(14)
 #define FONT_COLOR [UIColor colorWithRed:0.34 green:0.78 blue:0.73 alpha:1]
 
 #define OFFSET 0.015
@@ -113,7 +113,7 @@
     
     label.textAlignment = NSTextAlignmentCenter;
     label.adjustsFontSizeToFitWidth = YES;
-    [label setText:@"0:00"];
+    [label setText:@"00:00"];
     [self addSubview:label];
     
     [label setTranslatesAutoresizingMaskIntoConstraints:NO];
@@ -262,16 +262,16 @@ CGFloat angle = M_PI;
 }
 
 
-UIFont *UIFontAvenirNextBold(CGFloat size) {
-    return [UIFont fontWithName:@"AvenirNext-Bold" size:size];
+UIFont *UIFontOpenSansBold(CGFloat size) {
+    return [UIFont fontWithName:@"OpenSans-Bold" size:size];
 }
 
-UIFont *UIFontAvenirNextRegular(CGFloat size) {
-    return [UIFont fontWithName:@"AvenirNext-Regular" size:size];
+UIFont *UIFontOpenSansRegular(CGFloat size) {
+    return [UIFont fontWithName:@"OpenSans-Regular" size:size];
 }
 
-UIFont *UIFontAvenirNextMedium(CGFloat size) {
-    return [UIFont fontWithName:@"AvenirNext-Medium" size:size];
+UIFont *UIFontOpenSansMedium(CGFloat size) {
+    return [UIFont fontWithName:@"OpenSans-Semibold" size:size];
 }
 
 @end
