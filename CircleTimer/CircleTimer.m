@@ -15,10 +15,11 @@
 #define ICOLOR [UIColor colorWithRed:0.85 green:0.87 blue:0.9 alpha:1]
 #define PCOLOR [UIColor colorWithRed:0.91 green:0.4 blue:0.51 alpha:1]
 
-#define FONT UIFontOpenSansBold(14)
+#define FONT UIFontAvenirNextBold(13)
 #define FONT_COLOR [UIColor colorWithRed:0.34 green:0.78 blue:0.73 alpha:1]
 
 #define OFFSET 0.015
+#define MINUTE 60
 
 @interface CircleTimer ()
 
@@ -56,11 +57,11 @@
     [self addBaseSubviews];
     
     super.backgroundColor = [UIColor clearColor];
-    self.backgroundColor = BGCOLOR;
+    self.backgroundColor = [self colorWithHex:@"54A8BF" alpha:1.0f];
     self.activeColor = ACOLOR;
     self.inactiveColor = ICOLOR;
     self.pauseColor = PCOLOR;
-    self.fontColor = FONT_COLOR;
+    self.fontColor = [self colorWithHex:@"4D4D4D" alpha:1.0f];
     self.thickness = THIKNESS;
     self.font = FONT;
     self.completedTimeUpToLastStop = 0;
@@ -68,6 +69,7 @@
     self.elapsedTime = 0;
     self.offset = OFFSET;
     self.active = YES;
+    self.isBackwards = NO;
     
 }
 
@@ -133,43 +135,71 @@
 }
 
 - (void)updateTimerLabel:(NSTimeInterval)elapsedTime {
-    int minutes = (int) (elapsedTime / 60);
-    int seconds = (int) elapsedTime % 60;
-    NSString *time = [NSString stringWithFormat:@"%02d:%02d", minutes, seconds];
+    int minutes;
+    int seconds;
+    
+    if (self.isBackwards) {
+        minutes = (int) ((self.totalTime - elapsedTime) / 60);
+        seconds = (int) (self.totalTime - elapsedTime) % 60;
+    } else {
+        minutes = (int) elapsedTime / 60;
+        seconds = (int) elapsedTime % 60;
+    }
+    
+    NSString *time = [NSString stringWithFormat:@"%d:%02d", minutes, seconds];
     [self.timerLabel setText:time];
 }
 
 
 - (void)start {
+    
+    if (self.totalTime - self.elapsedTime <= MINUTE)
+    {
+        self.backgroundColor = [self colorWithHex:@"C85B5B" alpha:1.0f];
+    }
+    else
+    {
+        self.backgroundColor = [self colorWithHex:@"54A8BF" alpha:1.0f];
+    }
+    
     if (_isRunning) return;
     if (self.didStart) {
         [self resume];
         return;
     }
-
+    
     [CircleTimer validateInputTime:self.totalTime];
     self.timer = [NSTimer scheduledTimerWithTimeInterval:REFRESH_INTERVAL target:self selector:@selector(timerFired) userInfo:nil repeats:YES];
     [[NSRunLoop currentRunLoop] addTimer:self.timer forMode:NSRunLoopCommonModes];
-
+    
     _isRunning = YES;
     _active = YES;
-
+    
     self.lastStartTime = [NSDate date];
     self.completedTimeUpToLastStop = self.elapsedTime;
-
+    
     [self.timer fire];
 }
 
 - (void)timerFired {
     if (!_isRunning) return;
-
+    
     self.elapsedTime = (self.completedTimeUpToLastStop + [[NSDate date] timeIntervalSinceDate:self.lastStartTime]);
-
+    
     // Check if timer has expired.
     if (self.elapsedTime > self.totalTime) {
         [self timerCompleted];
     }
-
+    
+    // Check if timer has a minute or less left
+    if (self.totalTime - self.elapsedTime <= MINUTE) {
+        
+        static dispatch_once_t onceToken;
+        dispatch_once(&onceToken, ^{
+            [self timeWarning];
+        });
+    }
+    
     [self setNeedsDisplay];
 }
 
@@ -186,14 +216,14 @@
     [self setNeedsDisplay];
     self.completedTimeUpToLastStop += [[NSDate date] timeIntervalSinceDate:self.lastStartTime];
     self.elapsedTime = self.completedTimeUpToLastStop;
-
+    
     [self.timer setFireDate:[NSDate distantFuture]];
 }
 
 - (void)reset {
     [self.timer invalidate];
     self.timer = nil;
-
+    
     self.elapsedTime = 0;
     _isRunning = NO;
     _active = YES;
@@ -209,37 +239,50 @@
 
 - (void)timerCompleted {
     [self.timer invalidate];
-
+    
     _isRunning = NO;
-
+    
     self.elapsedTime = self.totalTime;
-
+    
     if ([self.delegate respondsToSelector:@selector(circleCounterTimeDidExpire:)]) {
         [self.delegate circleCounterTimeDidExpire:self];
+    }
+}
+
+- (void)timeWarning {
+    self.backgroundColor = [self colorWithHex:@"C85B5B" alpha:1.0f];
+    
+    if ([self.delegate respondsToSelector:@selector(circleCounterTimeDidWarn:)]) {
+        [self.delegate circleCounterTimeDidWarn:self];
     }
 }
 
 - (void)drawRect:(CGRect)rect {
     CGContextRef context = UIGraphicsGetCurrentContext();
     CGFloat radius = CGRectGetWidth(rect) / 2.0f - self.thickness / 2.0f;
-
+    
     // Draw the background of the circle.
     CGContextSetLineWidth(context, self.thickness);
-
+    
     CGContextBeginPath(context);
     CGFloat midX = CGRectGetMidX(rect);
     CGFloat midY = CGRectGetMidY(rect);
     CGContextAddArc(context, midX, midY, radius, 0, 2 * M_PI, 0);
     CGContextSetStrokeColorWithColor(context, [self.backgroundColor CGColor]);
     CGContextStrokePath(context);
-
+    
     if (self.active) {
 #if !TARGET_INTERFACE_BUILDER
-        CGFloat angle = (((CGFloat) self.elapsedTime) / (CGFloat) self.totalTime) * M_PI * 2;
+        CGFloat angle;
+        if (!self.isBackwards) {
+            angle = 2*M_PI - ((((CGFloat) self.elapsedTime) / (CGFloat) self.totalTime) * M_PI * 2);
+        } else {
+            angle =  (((CGFloat) self.elapsedTime) / (CGFloat) self.totalTime) * M_PI * 2;
+        }
         if (self.isRunning) {
 #else
-CGFloat angle = M_PI;
-            #endif
+            CGFloat angle = M_PI;
+#endif
             CGContextBeginPath(context);
             CGContextAddArc(context, midX, midY, radius, -M_PI_2, angle - M_PI_2, 0);
             CGContextSetStrokeColorWithColor(context, [self.pauseColor CGColor]);
@@ -250,7 +293,7 @@ CGFloat angle = M_PI;
             CGContextAddArc(context, midX, midY, radius, angle - M_PI_2 + self.offset, -M_PI_2 - self.offset, 0);
             CGContextSetStrokeColorWithColor(context, [self.inactiveColor CGColor]);
             CGContextStrokePath(context);
-
+            
             CGContextBeginPath(context);
             CGContextAddArc(context, midX, midY, radius, -M_PI_2, angle - M_PI_2, 0);
             CGContextSetStrokeColorWithColor(context, [self.activeColor CGColor]);
@@ -258,20 +301,37 @@ CGFloat angle = M_PI;
         }
 #endif
     }
-
+    
 }
 
+- (UIColor *)colorWithHex:(NSString *)hexString alpha:(float)alpha
+{
+    // remove the #
+    NSString *noHashString = [hexString stringByReplacingOccurrencesOfString:@"#" withString:@""];
+    NSScanner *scanner = [NSScanner scannerWithString:noHashString];
+    
+    // remove + and $
+    [scanner setCharactersToBeSkipped:[NSCharacterSet symbolCharacterSet]];
+    
+    unsigned hex;
+    if (![scanner scanHexInt:&hex]) return nil;
+    int r = (hex >> 16) & 0xFF;
+    int g = (hex >> 8) & 0xFF;
+    int b = (hex) & 0xFF;
+    
+    return [UIColor colorWithRed:r / 255.0f green:g / 255.0f blue:b / 255.0f alpha:alpha];
+}
 
-UIFont *UIFontOpenSansBold(CGFloat size) {
+UIFont *UIFontAvenirNextBold(CGFloat size) {
     return [UIFont fontWithName:@"OpenSans-Bold" size:size];
 }
 
-UIFont *UIFontOpenSansRegular(CGFloat size) {
+UIFont *UIFontAvenirNextRegular(CGFloat size) {
     return [UIFont fontWithName:@"OpenSans-Regular" size:size];
 }
 
-UIFont *UIFontOpenSansMedium(CGFloat size) {
-    return [UIFont fontWithName:@"OpenSans-Semibold" size:size];
+UIFont *UIFontAvenirNextMedium(CGFloat size) {
+    return [UIFont fontWithName:@"OpenSane-Semibold" size:size];
 }
 
 @end
