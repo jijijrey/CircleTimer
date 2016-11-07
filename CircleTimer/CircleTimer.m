@@ -29,6 +29,8 @@
 @property(assign, nonatomic) NSTimeInterval completedTimeUpToLastStop;
 
 @property(weak, nonatomic) UILabel *timerLabel;
+
+@property (assign, nonatomic) BOOL warned;
 @end
 
 @implementation CircleTimer {
@@ -70,6 +72,7 @@
     self.offset = OFFSET;
     self.active = YES;
     self.isBackwards = NO;
+    self.warned = NO;
     
 }
 
@@ -194,10 +197,10 @@
     // Check if timer has a minute or less left
     if (self.totalTime - self.elapsedTime <= MINUTE) {
         
-        static dispatch_once_t onceToken;
-        dispatch_once(&onceToken, ^{
+        if (self.warned)
+        {
             [self timeWarning];
-        });
+        }
     }
     
     [self setNeedsDisplay];
@@ -250,6 +253,7 @@
 }
 
 - (void)timeWarning {
+    self.warned = YES;
     self.backgroundColor = [self colorWithHex:@"C85B5B" alpha:1.0f];
     
     if ([self.delegate respondsToSelector:@selector(circleCounterTimeDidWarn:)]) {
