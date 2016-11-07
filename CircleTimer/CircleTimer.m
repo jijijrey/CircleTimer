@@ -195,9 +195,9 @@
     }
     
     // Check if timer has a minute or less left
-    if (self.totalTime - self.elapsedTime <= MINUTE) {
-        
-        if (self.warned)
+    if (self.totalTime - self.elapsedTime <= MINUTE)
+    {
+        if (!self.warned)
         {
             [self timeWarning];
         }
