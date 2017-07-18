@@ -28,8 +28,8 @@
 
 - (void)updateCircleTimer {
     
-    self.timeCircle.totalTime = 60;
-    self.timeCircle.elapsedTime = 20;
+    self.timeCircle.totalTime = 120;
+    self.timeCircle.elapsedTime = 0;
 }
 
 #pragma mark - Action

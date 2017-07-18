@@ -8,7 +8,7 @@
 #define REFRESH_INTERVAL .015 // ~60 FPS
 
 // Defaults
-#define THIKNESS 8.0f
+#define THIKNESS 10.0f
 
 #define BGCOLOR  [UIColor colorWithRed:0.33 green:0.37 blue:0.42 alpha:1]
 #define ACOLOR [UIColor colorWithRed:0.35 green:0.75 blue:0.74 alpha:1]
@@ -59,10 +59,10 @@
     [self addBaseSubviews];
     
     super.backgroundColor = [UIColor clearColor];
-    self.backgroundColor = [self colorWithHex:@"54A8BF" alpha:1.0f];
-    self.activeColor = ACOLOR;
-    self.inactiveColor = ICOLOR;
-    self.pauseColor = PCOLOR;
+    self.backgroundColor = [self colorWithHex:@"FEC646" alpha:1.0f];
+    self.activeColor = [self colorWithHex:@"FEC646" alpha:1.0f];
+    self.inactiveColor = [UIColor clearColor];
+    self.pauseColor = [self colorWithHex:@"FEC646" alpha:1.0f];
     self.fontColor = [self colorWithHex:@"4D4D4D" alpha:1.0f];
     self.thickness = THIKNESS;
     self.font = FONT;
@@ -156,14 +156,7 @@
 
 - (void)start {
     
-    if (self.totalTime - self.elapsedTime <= MINUTE)
-    {
-        self.backgroundColor = [self colorWithHex:@"C85B5B" alpha:1.0f];
-    }
-    else
-    {
-        self.backgroundColor = [self colorWithHex:@"54A8BF" alpha:1.0f];
-    }
+    self.backgroundColor = [UIColor clearColor];
     
     if (_isRunning) return;
     if (self.didStart) {
@@ -253,8 +246,8 @@
 }
 
 - (void)timeWarning {
-    self.warned = YES;
-    self.backgroundColor = [self colorWithHex:@"C85B5B" alpha:1.0f];
+    //self.warned = YES;
+    //self.backgroundColor = [self colorWithHex:@"C85B5B" alpha:1.0f];
     
     if ([self.delegate respondsToSelector:@selector(circleCounterTimeDidWarn:)]) {
         [self.delegate circleCounterTimeDidWarn:self];
