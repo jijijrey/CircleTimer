@@ -15,7 +15,7 @@
 #define ICOLOR [UIColor colorWithRed:0.85 green:0.87 blue:0.9 alpha:1]
 #define PCOLOR [UIColor colorWithRed:0.91 green:0.4 blue:0.51 alpha:1]
 
-#define FONT UIFontAvenirNextBold(13)
+#define FONT UIFontAvenirNextBold(5)
 #define FONT_COLOR [UIColor colorWithRed:0.34 green:0.78 blue:0.73 alpha:1]
 
 #define OFFSET 0.015
