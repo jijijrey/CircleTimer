@@ -81,6 +81,10 @@
     return self.timer != nil;
 }
 
+- (NSTimeInterval)remainingTime {
+    return self.totalTime - self.elapsedTime
+}
+
 
 - (void)setBackgroundColor:(UIColor *)backgroundColor {
     _circleBackgroundColor = backgroundColor;

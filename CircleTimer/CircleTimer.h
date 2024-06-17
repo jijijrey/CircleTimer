@@ -36,6 +36,7 @@ IB_DESIGNABLE
 @property(nonatomic, readonly) BOOL didStart;
 @property(nonatomic, readonly) BOOL isRunning;
 @property(nonatomic, getter=isActive) BOOL active;
+@property(nonatomic, readonly) NSTimeInterval remainingTime;
 
 /** APPEARANCE
  *   @circleInactiveColor -
