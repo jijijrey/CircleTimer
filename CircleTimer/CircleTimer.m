@@ -82,7 +82,7 @@
 }
 
 - (NSTimeInterval)remainingTime {
-    return self.totalTime - self.elapsedTime
+    return self.totalTime - self.elapsedTime;
 }
 
 
