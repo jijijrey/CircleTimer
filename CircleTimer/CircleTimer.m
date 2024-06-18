@@ -27,7 +27,6 @@
 @property(strong, nonatomic) NSDate *lastStartTime;
 
 @property(assign, nonatomic) NSTimeInterval completedTimeUpToLastStop;
-@property(assign, nonatomic) NSTimeInterval runningTime;
 
 @property(weak, nonatomic) UILabel *timerLabel;
 
@@ -82,11 +81,6 @@
     return self.timer != nil;
 }
 
-- (NSTimeInterval)remainingTime {
-    return self.totalTime - self.runningTime;
-}
-
-
 - (void)setBackgroundColor:(UIColor *)backgroundColor {
     _circleBackgroundColor = backgroundColor;
 }
@@ -138,7 +132,6 @@
 - (void)setElapsedTime:(NSTimeInterval)elapsedTime {
     if (_elapsedTime != elapsedTime) {
         _elapsedTime = elapsedTime;
-        self.runningTime = elapsedTime;
         [self updateTimerLabel:elapsedTime];
     }
 }
